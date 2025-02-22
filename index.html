@@ -165,7 +165,7 @@
     } else {
         console.log("Geolocation wordt niet ondersteund door je browser.");
     }
-}, 5000); // Herhaal elke 5 seconden
+}, 2000);
  
 
 
@@ -176,7 +176,7 @@ function kaart(lat, lon){
             target: 'map2',
             layers: [
                 new ol.layer.Tile({
-                    source: new ol.source.OSM() // OpenStreetMap tiles
+                    source: new ol.source.OSM()
                 })
             ],
             view: new ol.View({
@@ -185,14 +185,13 @@ function kaart(lat, lon){
             })
         });
 
-        vectorSource = new ol.source.Vector(); // Maak vector source
+        vectorSource = new ol.source.Vector();
         vectorLayer = new ol.layer.Vector({
             source: vectorSource
         });
 
-        map2.addLayer(vectorLayer); // Voeg de vectorLayer toe aan de kaart
+        map2.addLayer(vectorLayer); 
 
-        // Maak de marker aan
         marker = new ol.Feature({
             geometry: new ol.geom.Point(ol.proj.fromLonLat([lon, lat]))
         });
