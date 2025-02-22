@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@latest/ol.css">
+    <script src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
+    <style>
+         body{
+            margin:0;
+            padding:0;
+        }
+        #map2{
+            border-radius: 25px;
+            height:65dvh;
+        }
+        #vanonder{
+            background-color: rgb(191, 213, 227);
+            width:100vw;
+            height:40dvh;
+            border-radius:25px 25px 0px 0px;
+            position:absolute;
+            top:60dvh;
+            left:0vw;
+        }
+        #welcome{
+            display:flex;
+            z-index:999;
+            position:absolute;
+            top:0;
+            left:0;
+            background-color:rgb(191, 213, 227);;
+            width:100vw;
+            height:100vh;
+            text-align:center;
+            font-family:arial;
+        }
+
+        #welcome h1{
+            position:absolute;
+            top:5dvh;
+            left:50%;
+            transform: translate(-50%,-50%);
+        }
+
+        #wbuttons{
+            width:80vw;
+            height:10vw;
+            border-radius:5px;
+            position:absolute;
+            top:60dvh;
+            left:10vw;
+            display:flex;
+            justify-content: center;
+            align-items: center;
+            gap:10px;
+        }
+        .wbut{
+            width:30vw;
+            height:10vw;
+            border:none;
+            outline:none;
+            border-radius:5px;
+            display:block;
+        }
+
+        #create{
+            display:none;
+            z-index:999;
+            position:absolute;
+            top:0;
+            left:0;
+            background-color:rgb(191, 213, 227);;
+            width:100vw;
+            height:100vh;
+            text-align:center;
+            font-family:arial;
+        }
+        #create h1{
+            position:absolute;
+            top:5dvh;
+            left:50%;
+            transform: translate(-50%,-50%);
+        }
+        #create h3{
+            position:absolute;
+            top:18dvh;
+            left:50%;
+            transform: translate(-50%,-50%);
+        }
+        #nop{
+            position:absolute;
+            top:50%;
+            left:50%;
+            transform: translate(-50%,-50%);
+            margin-top:35dvh;
+        }
+        #cstart{
+            position:absolute;
+            top:90%;
+            left:50%;
+            transform: translate(-50%,-50%);
+        }
+        select{
+            height:10vw;
+            width:20vw;
+            height:10vw;
+            border:none;
+            outline:none;
+            border-radius:5px;
+            display:block;
+            position:absolute;
+            top:60%;
+            left:50%;
+            transform: translate(-50%,-50%);
+            text-align:center;
+        }
+    </style>
+</head>
+<body>
+    <div id="welcome">
+        <h1>Welcome!</h1>
+        <div id="wbuttons">
+        <button onclick="getaantalpartys()"  class="wbut">Create a party</button>
+        <button class="wbut">Join a party</button>
+        </div>
+    </div>
+
+    <div id="create">
+        <h1>create a party</h1>
+        <h3 id="pcode">party code:</h3>
+            <h3 id="nop">Your player number</h3>
+            <select>
+                <option>player 1</option>
+                <option>player 2</option>
+                <option>player 3</option>
+                <option>player 4</option>
+                <option>player 5</option>
+            </select>
+        <button onclick="startt()" id="cstart" class="wbut">Start</button>
+    </div>
+
+    <div id="map2" style="width:100%; height: 65dvh;"></div>
+    <div id="vanonder">
+        <!--<h2 id="trgt">target: </h2>
+        <div id="coindiv">
+        <h2 id="coins">0</h2>
+        <img id="coin">
+        </div>-->
+    </div>
+    <script>
+let lat, lon;
+
+        if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            lat = position.coords.latitude;
+            lon = position.coords.longitude;
+            kaart(lat, lon);    
+        },
+        function(error) {
+            console.error("Fout bij ophalen locatie: ", error);
+        }
+    );
+} else {
+    console.log("Geolocation wordt niet ondersteund door je browser.");
+}
+
+
+function kaart(lat, lon){
+    var map2 = new ol.Map({
+        target: 'map2',
+        layers: [
+            new ol.layer.Tile({
+                source: new ol.source.OSM() // OpenStreetMap tiles
+            })
+        ],
+        view: new ol.View({
+            center: ol.proj.fromLonLat([lon, lat]),
+            zoom: 15
+        })
+    });
+
+    var marker = new ol.Feature({
+        geometry: new ol.geom.Point(ol.proj.fromLonLat([lon, lat]))
+    });
+
+    var markerStyle = new ol.style.Style({
+        image: new ol.style.Icon({
+            anchor: [0.5, 1],
+            src: 'https://cdn-icons-png.flaticon.com/256/217/217222.png',
+            scale: 0.09
+        })
+    });
+
+    marker.setStyle(markerStyle);
+
+    var vectorSource = new ol.source.Vector({
+        features: [marker]
+    });
+
+    var vectorLayer = new ol.layer.Vector({
+        source: vectorSource
+    });
+
+    map2.addLayer(vectorLayer);
+
+}
+
+    var aantal;
+    var code;
+
+function getaantalpartys(){
+
+    document.getElementById("welcome").style.display = "none";
+    document.getElementById("create").style.display = "flex";
+
+        const requestOptions = {
+  method: "GET",
+  redirect: "follow"
+};
+
+fetch("https://difficult-lilac-source.glitch.me/number", requestOptions)
+.then((response) => response.json())
+                .then((result) => {
+                  aantal = result.waarde;
+                  postparty();
+                })
+  .catch((error) => console.error(error));
+
+}
+
+
+
+
+function postparty(){
+    const myHeaders = new Headers();
+myHeaders.append("Content-Type", "application/json");
+
+const raw = JSON.stringify({
+  "waarde": aantal + 1
+});
+
+const requestOptions = {
+  method: "POST",
+  headers: myHeaders,
+  body: raw,
+  redirect: "follow"
+};
+
+fetch("https://difficult-lilac-source.glitch.me/update", requestOptions)
+.then((response) => response.json())
+.then((result) => {  
+    code = aantal + 1;
+    document.getElementById("pcode").innerHTML = "party code: " + code;})
+.catch((error) => console.error(error));
+
+}
+
+
+
+function startt(){
+    document.getElementById("welcome").style.display = "none";
+    document.getElementById("create").style.display = "none";
+}
+    </script>
+</body>
+</html>
