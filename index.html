@@ -151,6 +151,7 @@
     </div>
     <script>
     let lat, lon;
+    let map2, vectorLayer, marker, vectorSource;
 
 
     setInterval(function() {
@@ -169,42 +170,49 @@
 
 
 function kaart(lat, lon){
-    var map2 = new ol.Map({
-        target: 'map2',
-        layers: [
-            new ol.layer.Tile({
-                source: new ol.source.OSM() // OpenStreetMap tiles
+    console.log("kaart");
+    if (!map2) {
+        map2 = new ol.Map({
+            target: 'map2',
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM() // OpenStreetMap tiles
+                })
+            ],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([lon, lat]),
+                zoom: 15
             })
-        ],
-        view: new ol.View({
-            center: ol.proj.fromLonLat([lon, lat]),
-            zoom: 15
-        })
-    });
+        });
 
-    var marker = new ol.Feature({
-        geometry: new ol.geom.Point(ol.proj.fromLonLat([lon, lat]))
-    });
+        vectorSource = new ol.source.Vector(); // Maak vector source
+        vectorLayer = new ol.layer.Vector({
+            source: vectorSource
+        });
 
-    var markerStyle = new ol.style.Style({
-        image: new ol.style.Icon({
-            anchor: [0.5, 1],
-            src: 'https://cdn-icons-png.flaticon.com/256/217/217222.png',
-            scale: 0.09
-        })
-    });
+        map2.addLayer(vectorLayer); // Voeg de vectorLayer toe aan de kaart
 
-    marker.setStyle(markerStyle);
+        // Maak de marker aan
+        marker = new ol.Feature({
+            geometry: new ol.geom.Point(ol.proj.fromLonLat([lon, lat]))
+        });
 
-    var vectorSource = new ol.source.Vector({
-        features: [marker]
-    });
+        var markerStyle = new ol.style.Style({
+            image: new ol.style.Icon({
+                anchor: [0.5, 1],
+                src: 'https://cdn-icons-png.flaticon.com/256/217/217222.png',
+                scale: 0.09
+            })
+        });
 
-    var vectorLayer = new ol.layer.Vector({
-        source: vectorSource
-    });
-
-    map2.addLayer(vectorLayer);
+        marker.setStyle(markerStyle);
+        vectorSource.addFeature(marker);
+    } else {
+        // Als de kaart al bestaat, werk dan alleen de marker bij
+        var coords = ol.proj.fromLonLat([lon, lat]);
+        marker.setGeometry(new ol.geom.Point(coords)); // Werk de marker positie bij
+        map2.getView().setCenter(coords); // Zet het centrum van de kaart naar de nieuwe locatie
+    }
 
 }
 
