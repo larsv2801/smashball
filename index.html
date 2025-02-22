@@ -153,26 +153,19 @@
     let lat, lon;
 
 
-if (navigator.geolocation) {
-    navigator.geolocation.watchPosition(
-        function(position) {
+    setInterval(function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
             lat = position.coords.latitude;
             lon = position.coords.longitude;
-            console.log("update  " + lat +"   "+ lon);
+            console.log("update  " + lat + "   " + lon);
             kaart(lat, lon);    
-        },
-        function(error) {
-            console.error("Fout bij ophalen locatie: ", error);
-        },
-        {
-            enableHighAccuracy: true,
-            timeout: 5000, // 10 seconden om een nieuwe locatie te krijgen
-            maximumAge: 0 // Geen gecachte locaties gebruiken
-        }
-    );
-} else {
-    console.log("Geolocation wordt niet ondersteund door je browser.");
-}   
+        });
+    } else {
+        console.log("Geolocation wordt niet ondersteund door je browser.");
+    }
+}, 5000); // Herhaal elke 5 seconden
+ 
 
 
 function kaart(lat, lon){
