@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>SmashBall</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@latest/ol.css">
     <script src="https://cdn.jsdelivr.net/npm/ol@latest/dist/ol.js"></script>
     <style>
@@ -150,22 +150,29 @@
         </div>-->
     </div>
     <script>
-let lat, lon;
+    let lat, lon;
 
-        if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
+
+if (navigator.geolocation) {
+    navigator.geolocation.watchPosition(
         function(position) {
             lat = position.coords.latitude;
             lon = position.coords.longitude;
+            console.log("update  " + lat +"   "+ lon);
             kaart(lat, lon);    
         },
         function(error) {
             console.error("Fout bij ophalen locatie: ", error);
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 5000, // 10 seconden om een nieuwe locatie te krijgen
+            maximumAge: 0 // Geen gecachte locaties gebruiken
         }
     );
 } else {
     console.log("Geolocation wordt niet ondersteund door je browser.");
-}
+}   
 
 
 function kaart(lat, lon){
