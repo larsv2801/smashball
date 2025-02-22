@@ -10,6 +10,8 @@
          body{
             margin:0;
             padding:0;
+             overflow:hidden;
+             background-color:rgb(191, 213, 227);
         }
         #map2{
             border-radius: 25px;
@@ -207,10 +209,9 @@ function kaart(lat, lon){
         marker.setStyle(markerStyle);
         vectorSource.addFeature(marker);
     } else {
-        // Als de kaart al bestaat, werk dan alleen de marker bij
         var coords = ol.proj.fromLonLat([lon, lat]);
-        marker.setGeometry(new ol.geom.Point(coords)); // Werk de marker positie bij
-        map2.getView().setCenter(coords); // Zet het centrum van de kaart naar de nieuwe locatie
+        marker.setGeometry(new ol.geom.Point(coords)); 
+        //map2.getView().setCenter(coords);
     }
 
 }
